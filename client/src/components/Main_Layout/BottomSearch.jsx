@@ -8,6 +8,7 @@ const BottomSearch = () => {
     const [transcript, setTranscript] = useState('');
     const [listening, setListening] = useState(false);
 
+
     const recognitionRef = useRef(null);
     const mediaRecorderRef = useRef(null);
     const audioChunksRef = useRef([]);
@@ -17,9 +18,8 @@ const BottomSearch = () => {
     console.log('audioUrl:', audioUrl)
 
     const user = JSON.parse(localStorage.getItem("user"))
-    console.log('user:', user)
     const loginuser = useSelector((state) => state.user.user)
-    console.log('loginuser:', loginuser)
+  
 
     useEffect(() => {
         const SpeechRecognition =
@@ -78,7 +78,7 @@ const BottomSearch = () => {
         }
     };
 
-    const stopRecording = () => {
+    const stopRecording = async () => {
         if (!mediaRecorderRef.current) return;
 
         if (recognitionRef.current) {
@@ -89,20 +89,39 @@ const BottomSearch = () => {
         mediaRecorderRef.current.stop();
         mediaRecorderRef.current.onstop = async () => {
             const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+
             const url = URL.createObjectURL(audioBlob);
             setAudioUrl(url);
             setRecording(false);
 
             const formData = new FormData();
-            formData.append('audio', audioBlob, 'recording.wav');
-            formData.append('text', transcript);
+            formData.append('audio', audioBlob , 'recording.wav');
+            formData.append('text', transcript || 'hello world');
+            formData.append('image', 'https//image.com');
+            formData.append('user', loginuser?._id || user?._id);
+
+            console.log('formData:', formData)
 
             try {
-                const response = await axios.post('/api/v1/note/create', formData);
+                const response = await axios.post('http://localhost:3000/api/v1/note/create', formData, {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                });
+
+                console.log('response:', response)
+
+                dispatch(setAudioUrl({
+                    audio: url,
+                    text: transcript,
+                    image: 'https//image.com',
+                    user: loginuser._id || user._id
+                }));
 
                 if (response.status === 200) {
                     console.log('Audio uploaded successfully');
-                    dispatch(setAudioUrl({ audio: url, text: transcript, image: 'https//image.com',  user:loginuser._id || user._id }));
+
+
                 } else {
                     console.error('Audio upload failed');
                 }
@@ -112,6 +131,7 @@ const BottomSearch = () => {
         };
     };
 
+
     return (
         <div className="bg-gray-100 p-4 rounded-md shadow-md">
             <h2 className="text-lg font-bold mb-4">Record Audio</h2>
@@ -120,7 +140,7 @@ const BottomSearch = () => {
                 <div className="mt-4">
                     <h3 className="text-lg font-bold">Playback:</h3>
                     <audio controls src={audioUrl} className="w-full" />
-                </div> 
+                </div>
             )}
             <p>
                 <strong>Transcript:</strong> {transcript}

@@ -40,6 +40,7 @@ const Modal = ({ card, onClose }) => {
         <p>
           <strong>Time:</strong> {card.time}
         </p>
+
         {card.audio && (
           <div>
             <strong>Audio:</strong>
@@ -49,6 +50,7 @@ const Modal = ({ card, onClose }) => {
             </audio>
           </div>
         )}
+        
       </div>
     </div>
   );

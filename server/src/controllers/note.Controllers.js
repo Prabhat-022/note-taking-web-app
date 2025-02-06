@@ -1,50 +1,52 @@
 import Note from "../model/note.Model.js"
-import { v2 as cloudinary } from 'cloudinary';
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
-// Configuration
-cloudinary.config({
-    cloud_name: 'dknsgrzbe',
-    api_key: '183245858611542',
-    api_secret: 'L0homrJ7xgFfOzISZNg7QH_0Jv4' // Click 'View API Keys' above to copy your API secret
-});
 
 
 export const createNote = async (req, res) => {
-    console.log(req.body)
+
+    console.log('createNote:', req.body);
+
     try {
         const { audio, text, image, user } = req.body
 
-        if (!audio || !text || !user) {
+        // if (!audio || !text || !user) {
+        //     return res.status(400).json({
+        //         message: "All fields are required",
+        //         success: false
+        //     })
+        // }
+
+        const audioLocalPath = `./public/temp/recording.wav`
+        const imageLocalPath = `./public/${image}`
+
+        console.log('audioLocalPath:', audioLocalPath)
+
+        if (!audioLocalPath || !imageLocalPath) {
             return res.status(400).json({
-                message: "All fields are required",
+                message: "Audio file not found",
                 success: false
             })
         }
-    
-        // Upload audio to Cloudinary
-        const audioUpload = await cloudinary.uploader.upload(audio, {
-            resource_type: "auto"
-        });
 
-        // Upload image to Cloudinary
-        const imageUpload = await cloudinary.uploader.upload(image, {
-            resource_type: "auto"
-        });
-
-        if (!audioUpload || !imageUpload) {
-            return res.status(400).json({
-                message: "Failed to upload audio or image on cloudinary",
-                success: false
-            })
-        }
+        const audioUpload = await uploadOnCloudinary(audioLocalPath)
+        // const imageUpload = await uploadOnCloudinary(imageLocalPath)
 
         console.log('audioUpload:', audioUpload)
-        console.log('imageUpload:', imageUpload)
+        // console.log('imageUpload:', imageUpload)
+
+        // if (!audioUpload || !imageUpload) {
+        //     return res.status(400).json({
+        //         message: "Audio and image is't  uploaded on cloudinary",
+        //         success: false
+        //     })
+        // }
+
 
         const note = await Note.create({
             audio: audioUpload?.url,
             text,
-            image: imageUpload?.url,
+            // image: imageUpload?.url,
             user
         })
 
@@ -64,15 +66,21 @@ export const createNote = async (req, res) => {
 }
 
 export const getAllNotes = async (req, res) => {
+
     try {
-        const notes = await Note.find({ user: req.user._id })
+        const user = req.body;
+        const notes = await Note.find({ user: user._id })
+
         return res.status(200).json({
             message: "Notes fetched successfully",
             success: true,
             data: notes
         })
+        
     } catch (error) {
+
         console.log(`Error fetching notes: ${error}`)
+
         return res.status(500).json({
             message: "Error fetching notes",
             success: false

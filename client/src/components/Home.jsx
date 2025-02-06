@@ -5,7 +5,8 @@ import Index from './Left_Layout/Index'
 import { useSelector } from 'react-redux'
 import Card from './Card'
 import Modal from './Modal'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import axios from 'axios'
 
 // Example data for the cards
 const initialCards = [
@@ -28,6 +29,10 @@ const Home = () => {
     const { notes } = useSelector((state) => state.note)
     console.log('home note:', notes);
 
+    
+    const user = JSON.parse(localStorage.getItem("user"))
+    const loginuser = useSelector((state) => state.user.user)
+
     const [cards] = useState(initialCards);
     const [selectedCard, setSelectedCard] = useState(null);
 
@@ -39,18 +44,20 @@ const Home = () => {
         setSelectedCard(null);
     };
 
+    const getAllNotes = async () => {
+
+        try {
+            const res = await axios.post('/api/v1/note/get-all-notes', { user: loginuser?._id });
+            console.log('Note fetched res:', res)
+        } catch (error) {
+            console.log(`Error fetching notes: ${error}`)
+        }
+    }
+    getAllNotes()
 
     return (
         <>
-            <div style={{ padding: '20px' }}>
-                <h1>Card List</h1>
-                {cards.map((card) => (
-                    <Card key={card.id} card={card} onClick={handleCardClick} />
-                ))}
 
-                {/* Render the modal if a card is selected */}
-                {selectedCard && <Modal card={selectedCard} onClose={handleCloseModal} />}
-            </div>
 
             <div className="flex ">
                 <div className="w-1/4">
@@ -59,13 +66,16 @@ const Home = () => {
                 <div className="w-full">
                     <TopSearch />
                     <div className="h-[calc(100vh-300px)] ">
-                        {
-                            notes?.map(() => (
-                                <NoteCart key={notes._id} note={notes} />
 
-                            ))
-                        }
+                        <div style={{ padding: '20px', width: '30%' }}>
+                            <h1>Card List</h1>
+                            {cards.map((card) => (
+                                <Card key={card.id} card={card} onClick={handleCardClick} />
+                            ))}
 
+                            {/* Render the modal if a card is selected */}
+                            {selectedCard && <Modal card={selectedCard} onClose={handleCloseModal} />}
+                        </div>
                     </div>
                     <BottomSearch />
                 </div>

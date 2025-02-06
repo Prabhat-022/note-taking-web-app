@@ -14,9 +14,12 @@ const Login = () => {
         try {
             const response = await axios.post("/api/v1/user/login", data);
             localStorage.setItem("token", response.data.token);
-            window.location.href = "/";
-            localStorage.setItem("user", JSON.stringify(response.data.user));
+            window.location.href = "/home";
+
+            console.log('login response:', response.data.user)
+
             dispatch(login(response.data.user));
+            localStorage.setItem("user", JSON.stringify(response.data.user));
 
         } catch (error) {
             setError(error.response.data.message);
