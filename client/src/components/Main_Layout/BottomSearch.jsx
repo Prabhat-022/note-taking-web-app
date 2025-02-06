@@ -8,13 +8,11 @@ const BottomSearch = () => {
     const [transcript, setTranscript] = useState('');
     const [listening, setListening] = useState(false);
 
-
     const recognitionRef = useRef(null);
     const mediaRecorderRef = useRef(null);
     const audioChunksRef = useRef([]);
 
     const dispatch = useDispatch()
-    console.log('transcript:', transcript)
     console.log('audioUrl:', audioUrl)
 
     const user = JSON.parse(localStorage.getItem("user"))

@@ -1,0 +1,6 @@
+----github repository---- 
+https://github.com/prabhat1611/note-taking-web-app
+
+->fetch the data and display it on the screen
+->desine the layout
+->fix the audio and recording and display it on the screen

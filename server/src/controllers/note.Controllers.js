@@ -67,9 +67,10 @@ export const createNote = async (req, res) => {
 
 export const getAllNotes = async (req, res) => {
 
+    console.log('get all notes req:', req.body)
     try {
-        const user = req.body;
-        const notes = await Note.find({ user: user._id })
+        const {user} = req.body;
+        const notes = await Note.find({ user})
 
         return res.status(200).json({
             message: "Notes fetched successfully",

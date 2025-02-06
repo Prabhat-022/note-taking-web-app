@@ -26,14 +26,13 @@ const initialCards = [
 ];
 
 const Home = () => {
-    const { notes } = useSelector((state) => state.note)
-    console.log('home note:', notes);
+
 
     
     const user = JSON.parse(localStorage.getItem("user"))
-    const loginuser = useSelector((state) => state.user.user)
-
     const [cards] = useState(initialCards);
+    // const [cards, setCards] = useState(initialCards);
+
     const [selectedCard, setSelectedCard] = useState(null);
 
     const handleCardClick = (card) => {
@@ -47,13 +46,16 @@ const Home = () => {
     const getAllNotes = async () => {
 
         try {
-            const res = await axios.post('/api/v1/note/get-all-notes', { user: loginuser?._id });
-            console.log('Note fetched res:', res)
+            const res = await axios.post('/api/v1/note/get-all-notes', { user:user._id });
+            console.log('Note fetched res:', res.data)
+            // setCards(res.data)
         } catch (error) {
             console.log(`Error fetching notes: ${error}`)
         }
     }
     getAllNotes()
+
+
 
     return (
         <>

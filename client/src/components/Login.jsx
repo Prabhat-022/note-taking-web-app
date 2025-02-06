@@ -1,29 +1,35 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
-import { login } from '../redux/userSlice';
-import { useDispatch } from 'react-redux';
+import { setLoginUser } from '../redux/userSlice.js';
+
+import { useDispatch } from 'react-redux'
 
 const Login = () => {
+
     const { register, handleSubmit, formState: { errors } } = useForm();
     const [error, setError] = useState(null);
-    const dispatch = useDispatch()
+
+    const dispatch = useDispatch();
 
     const onSubmit = async (data) => {
+
         console.log('login data:', data);
+
         try {
             const response = await axios.post("/api/v1/user/login", data);
+            dispatch(setLoginUser(response.data.user));
+
             localStorage.setItem("token", response.data.token);
             window.location.href = "/home";
 
             console.log('login response:', response.data.user)
 
-            dispatch(login(response.data.user));
             localStorage.setItem("user", JSON.stringify(response.data.user));
 
         } catch (error) {
             setError(error.response.data.message);
-        } 
+        }
     };
 
     return (
