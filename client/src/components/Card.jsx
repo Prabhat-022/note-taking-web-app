@@ -1,6 +1,9 @@
+import useClipboard from "react-use-clipboard";
 
 const Card = ({ card, onClick }) => {
     console.log('card:', card)
+    const [isCopied, setCopied] = useClipboard(card?.text);
+
     return (
         <div
             onClick={() => onClick(card)}
@@ -20,6 +23,10 @@ const Card = ({ card, onClick }) => {
                 </audio>
 
                 <p className="text-gray-700 text-sm mt-2">{card.text}</p>
+
+                <button onClick={setCopied} className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Was it copied? {isCopied ? "Yes! 👍" : "Nope! 👎"}
+                </button>
             </div>
 
         </div>

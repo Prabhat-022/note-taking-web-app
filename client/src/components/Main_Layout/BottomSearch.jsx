@@ -17,7 +17,7 @@ const BottomSearch = () => {
 
     const user = JSON.parse(localStorage.getItem("user"))
     const loginuser = useSelector((state) => state.user.user)
-  
+
 
     useEffect(() => {
         const SpeechRecognition =
@@ -93,7 +93,7 @@ const BottomSearch = () => {
             setRecording(false);
 
             const formData = new FormData();
-            formData.append('audio', audioBlob , 'recording.wav');
+            formData.append('audio', audioBlob, 'recording.wav');
             formData.append('text', transcript || 'hello world');
             formData.append('image', 'https//image.com');
             formData.append('user', loginuser?._id || user?._id);
@@ -144,12 +144,23 @@ const BottomSearch = () => {
                 <strong>Transcript:</strong> {transcript}
             </p>
 
-            <button
+            {/* <button
                 onClick={recording ? stopRecording : startRecording}
                 className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md ${recording ? 'bg-red-500' : ''}`}
             >
                 {recording ? 'Stop Recording' : 'Start Recording'}
+            </button> */}
+
+            <button onClick={recording ? stopRecording : startRecording}>
+                {recording && (
+                    <div style={{ margin: '10px 0' }}>
+                        <span style={{ color: 'red', fontSize: '24px' }}>●</span> Recording...
+                    </div>
+                )}
+                {recording ? 'Stop Recording' : 'Start Recording'}
             </button>
+
+
         </div>
     );
 };
