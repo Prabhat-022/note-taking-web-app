@@ -1,12 +1,11 @@
 import TopSearch from './Main_Layout/TopSearch'
-import NoteCart from './Main_Layout/NoteCart'
 import BottomSearch from './Main_Layout/BottomSearch'
 import Index from './Left_Layout/Index'
-import { useSelector } from 'react-redux'
 import Card from './Card'
 import Modal from './Modal'
-import { useEffect, useState } from 'react'
-import axios from 'axios'
+import { useState } from 'react'
+import useGetAllTheData from '../hooks/useGetAllTheData'
+import { useSelector } from 'react-redux'
 
 // Example data for the cards
 const initialCards = [
@@ -26,60 +25,55 @@ const initialCards = [
 ];
 
 const Home = () => {
-
-
-    
-    const user = JSON.parse(localStorage.getItem("user"))
-    const [cards] = useState(initialCards);
+    useGetAllTheData()
+    const { note } = useSelector((state) => state.user)
+    console.log('note:', note)
+    // const [cards] = useState(note);
     // const [cards, setCards] = useState(initialCards);
 
     const [selectedCard, setSelectedCard] = useState(null);
-
     const handleCardClick = (card) => {
         setSelectedCard(card);
+
     };
 
     const handleCloseModal = () => {
         setSelectedCard(null);
+
     };
-
-    const getAllNotes = async () => {
-
-        try {
-            const res = await axios.post('/api/v1/note/get-all-notes', { user:user._id });
-            console.log('Note fetched res:', res.data)
-            // setCards(res.data)
-        } catch (error) {
-            console.log(`Error fetching notes: ${error}`)
-        }
-    }
-    getAllNotes()
-
 
 
     return (
         <>
 
 
-            <div className="flex ">
-                <div className="w-1/4">
+            <div className="flex h-screen ">
+                <div className="w-1/5 h-full  border-gray-300">
                     <Index />
                 </div>
-                <div className="w-full">
-                    <TopSearch />
-                    <div className="h-[calc(100vh-300px)] ">
 
-                        <div style={{ padding: '20px', width: '30%' }}>
-                            <h1>Card List</h1>
-                            {cards.map((card) => (
-                                <Card key={card.id} card={card} onClick={handleCardClick} />
-                            ))}
-
-                            {/* Render the modal if a card is selected */}
-                            {selectedCard && <Modal card={selectedCard} onClose={handleCloseModal} />}
-                        </div>
+                <div className="w-4/5 h-full flex flex-col m-2 justify-between">
+                    <div className="h-12  border-gray-300">
+                        <TopSearch />
                     </div>
-                    <BottomSearch />
+
+                    <div className="">
+                        <h1 className="p-4 m-2 text-2xl font-bold mt-4">Card List</h1>
+                    </div>
+                    <div className="overflow-y-auto flex m-2  ">
+                        {note.map((card) => (
+                            card.map((card, index) => (
+                                <Card key={card.id} card={card} onClick={handleCardClick} />
+                            )
+                            )))
+                        }
+
+                        {selectedCard && <Modal card={selectedCard} onClose={handleCloseModal} />}
+                    </div>
+
+                    <div className="m-10">
+                        <BottomSearch />
+                    </div>
                 </div>
             </div>
         </>

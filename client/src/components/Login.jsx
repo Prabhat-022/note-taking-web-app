@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
-import { setLoginUser } from '../redux/userSlice.js';
 
 import { useDispatch } from 'react-redux'
+import { setLoginUser } from '../redux/userSlice';
 
 const Login = () => {
 
@@ -18,7 +18,6 @@ const Login = () => {
 
         try {
             const response = await axios.post("/api/v1/user/login", data);
-            dispatch(setLoginUser(response.data.user));
 
             localStorage.setItem("token", response.data.token);
             window.location.href = "/home";
@@ -26,7 +25,8 @@ const Login = () => {
             console.log('login response:', response.data.user)
 
             localStorage.setItem("user", JSON.stringify(response.data.user));
-
+            // const data = response.data.user
+            dispatch(setLoginUser(response.data.user));
         } catch (error) {
             setError(error.response.data.message);
         }
