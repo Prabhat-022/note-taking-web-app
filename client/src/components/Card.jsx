@@ -1,7 +1,6 @@
 import useClipboard from "react-use-clipboard";
 
 const Card = ({ card, onClick }) => {
-    console.log('card:', card)
     const [isCopied, setCopied] = useClipboard(card?.text);
 
     return (

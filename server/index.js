@@ -27,5 +27,5 @@ app.use("/api/v1/note", noteRoute);
 
 app.listen(port, () => {
     DBConnection()
-    console.log('Server running on port 3000')
+    console.log('Server running on port ' + port)
 })

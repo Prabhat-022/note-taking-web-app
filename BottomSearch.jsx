@@ -1,51 +1,49 @@
+
 import { useState, useRef, useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import axios from 'axios';
+import { useDispatch } from 'react-redux';
 
 const BottomSearch = () => {
     const [recording, setRecording] = useState(false);
     const [audioUrl, setAudioUrl] = useState(null);
+    console.log('audioUrl:', audioUrl)
+
     const [transcript, setTranscript] = useState('');
     const [listening, setListening] = useState(false);
-    const [interimTranscript, setInterimTranscript] = useState('');
-
     const recognitionRef = useRef(null);
+
     const mediaRecorderRef = useRef(null);
     const audioChunksRef = useRef([]);
 
-    const user = JSON.parse(localStorage.getItem("user"))
-    const loginuser = useSelector((state) => state.user.user)
+    const dispatch = useDispatch()
 
     useEffect(() => {
+        // Check for browser compatibility
         const SpeechRecognition =
             window.SpeechRecognition || window.webkitSpeechRecognition;
-
         if (!SpeechRecognition) {
             console.error('Speech Recognition API not supported in this browser.');
             return;
         }
 
+        // Create a new instance of SpeechRecognition
         const recognition = new SpeechRecognition();
-        recognition.lang = 'en-US';
+        recognition.lang = 'en-US'; // set the language
         recognition.interimResults = true;
         recognition.continuous = true;
 
-        var finalTranscripts = "";
-
+        // When results are received, update the transcript
         recognition.onresult = (event) => {
-            let interimTranscripts = ""
-            for (let i = event.resultIndex; i < event.results.length; i++) {
-                const transcript = event.results[i][0].transcript;
-                transcript.replace("\n", "<br>");
-
-                if (event.results[i].isFinal) {
-                    finalTranscripts += transcript;
+            let interimTranscript = '';
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                const result = event.results[i];
+                if (result.isFinal) {
+                    setTranscript((prev) => prev + result[0].transcript + ' ');
                 } else {
-                    interimTranscripts += transcript;
-                    console.log(interimTranscripts);
+                    interimTranscript += result[0].transcript;
                 }
             }
-            setTranscript(finalTranscripts + interimTranscripts);
+            // Optionally, you can show interim transcript feedback:
+            // setTranscript(prev => prev + interimTranscript);
         };
 
         recognition.onerror = (event) => {
@@ -55,6 +53,7 @@ const BottomSearch = () => {
         recognitionRef.current = recognition;
     }, []);
 
+    // Start recording: request microphone access and initialize MediaRecorder
     const startRecording = async () => {
 
         if (recognitionRef.current) {
@@ -63,11 +62,14 @@ const BottomSearch = () => {
         }
 
         try {
-
+            // Request access to the microphone
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            mediaRecorderRef.current = new MediaRecorder(stream);
-            audioChunksRef.current = [];
 
+            // Initialize MediaRecorder
+            mediaRecorderRef.current = new MediaRecorder(stream);
+            audioChunksRef.current = []; // clear previous chunks
+
+            // Event handler for when data is available
             mediaRecorderRef.current.ondataavailable = (event) => {
                 if (event.data.size > 0) {
                     audioChunksRef.current.push(event.data);
@@ -78,11 +80,14 @@ const BottomSearch = () => {
             setRecording(true);
 
         } catch (error) {
+
             console.error('Error accessing microphone:', error);
+
         }
     };
 
-    const stopRecording = async () => {
+    // Stop recording, create a Blob, and upload it to the server
+    const stopRecording = () => {
         if (!mediaRecorderRef.current) return;
 
         if (recognitionRef.current) {
@@ -93,28 +98,24 @@ const BottomSearch = () => {
         mediaRecorderRef.current.stop();
         mediaRecorderRef.current.onstop = async () => {
             const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
-
+            console.log('audioBlob:', audioBlob)
+            // Optionally create an object URL to preview the audio
             const url = URL.createObjectURL(audioBlob);
             setAudioUrl(url);
             setRecording(false);
 
+            // Prepare form data for uploading
             const formData = new FormData();
             formData.append('audio', audioBlob, 'recording.wav');
-            formData.append('text', transcript || interimTranscript || 'hello world');
-            formData.append('image', 'https//image.com');
-            formData.append('user', loginuser?._id || user?._id);
 
+            // Replace '/upload' with your server endpoint URL
             try {
-                const response = await axios.post('http://localhost:3000/api/v1/note/create', formData, {
-                    headers: {
-                        "Content-Type": "multipart/form-data",
-                    },
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData,
                 });
-
-                if (response.status === 200) {
+                if (response.ok) {
                     console.log('Audio uploaded successfully');
-
-
                 } else {
                     console.error('Audio upload failed');
                 }
@@ -125,6 +126,18 @@ const BottomSearch = () => {
     };
 
 
+    if (audioUrl) {
+
+        let newNote = {
+            Audio: 'hello',
+            text: 'Sample note text',
+            image: 'image-file-url',
+            user: 'username',
+        };
+
+        dispatch(setAudioUrl(newNote))
+
+    }
     return (
         <div className="bg-gray-100 p-4 rounded-md shadow-md">
             <h2 className="text-lg font-bold mb-4">Record Audio</h2>
@@ -135,10 +148,9 @@ const BottomSearch = () => {
                     <audio controls src={audioUrl} className="w-full" />
                 </div>
             )}
-            <div className="h-[200px] overflow-y-auto text-black">
-                <strong>Transcript:</strong> {transcript + interimTranscript}
-
-            </div>
+            <p>
+                <strong>Transcript:</strong> {transcript}
+            </p>
 
             <button
                 onClick={recording ? stopRecording : startRecording}
@@ -152,4 +164,3 @@ const BottomSearch = () => {
 };
 
 export default BottomSearch;
-
