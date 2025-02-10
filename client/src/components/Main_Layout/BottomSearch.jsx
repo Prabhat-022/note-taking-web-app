@@ -7,7 +7,9 @@ const BottomSearch = () => {
     const [audioUrl, setAudioUrl] = useState(null);
     const [transcript, setTranscript] = useState('');
     const [listening, setListening] = useState(false);
-    const [interimTranscript, setInterimTranscript] = useState('');
+    // const [interimTranscript, setInterimTranscript] = useState('');
+    const [image, setImage] = useState('');
+    console.log('image:', image)
 
     const recognitionRef = useRef(null);
     const mediaRecorderRef = useRef(null);
@@ -100,20 +102,25 @@ const BottomSearch = () => {
 
             const formData = new FormData();
             formData.append('audio', audioBlob, 'recording.wav');
-            formData.append('text', transcript || interimTranscript || 'hello world');
-            formData.append('image', 'https//image.com');
+            formData.append('text', transcript || 'Transcript is not working' );
+            formData.append('image', image);
             formData.append('user', loginuser?._id || user?._id);
 
+            for (const pair of formData.entries()) {
+                console.log(`${pair[0]}: ${pair[1]}`);
+            }
+            
             try {
+
                 const response = await axios.post('http://localhost:3000/api/v1/note/create', formData, {
                     headers: {
                         "Content-Type": "multipart/form-data",
                     },
                 });
 
+
                 if (response.status === 200) {
                     console.log('Audio uploaded successfully');
-
 
                 } else {
                     console.error('Audio upload failed');
@@ -136,11 +143,11 @@ const BottomSearch = () => {
                 </div>
             )}
             <div className="h-[200px] overflow-y-auto text-black">
-                <strong>Transcript:</strong> {transcript + interimTranscript}
-
+                <strong>Transcript:</strong> {transcript }
             </div>
+            <input type="file" onChange={(e)=>setImage(e.target.files[0])} />
 
-            <button
+            <button  type='submit'
                 onClick={recording ? stopRecording : startRecording}
                 className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md ${recording ? 'bg-red-500' : ''}`}
             >
