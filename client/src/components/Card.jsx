@@ -5,44 +5,52 @@ import { MdOutlineMoreHoriz } from "react-icons/md";
 
 const Card = ({ card, onClick }) => {
     const [isCopied, setCopied] = useClipboard(card?.text);
+    console.log('card', card)
 
     return (
         <div
-            onClick={() => onClick(card)}
-            style={{
-                border: '1px solid #ccc',
-                padding: '10px',
-                marginBottom: '10px',
-                cursor: 'pointer',
-            }}
 
         >
 
-            <div className="bg-white rounded-lg shadow-md p-4 w-[300px] h-[400px] flex flex-col justify-between">
+            <div className="bg-white rounded-lg shadow-md p-2 w-[300px] h-[400px] flex flex-col justify-between  border-red-800 border-2">
+
+                {/* <div className="">
+                    <audio controls className="w-full rounded-lg">
+                        <source src={card.audio} type="audio/mpeg" />
+                        Your browser does not support the audio element.
+                    </audio>
+                </div> */}
+
                 <div className="">
-                    <audio controls className="w-full">
+                    <audio controls className="w-full rounded-lg bg-transparent">
                         <source src={card.audio} type="audio/mpeg" />
                         Your browser does not support the audio element.
                     </audio>
                 </div>
-                <div className=" h-[200px] overflow-y-auto">
-                    <p className="text-gray-700 text-sm mt-2">{card.text}</p>
+
+                <div className=" h-[270px] overflow-y-auto border-green-700 border-2 rounded-lg">
+                    <p className="text-gray-700 text-sm leading-relaxed p-1">{card.text}</p>
 
                 </div>
-                <div className="flex justify-end items-center gap-2 bottom-0">
 
-                    <button onClick={setCopied} className=" bg-blue-500 hover:bg-blue-700  flex items-center text-white font-bold py-2 px-4 rounded">
+                <div className="flex justify-end items-center gap-1 bottom-0">
+                    <p className="text-sm">
+                        <strong>Time:</strong> {new Date(card.createdAt).toLocaleString()}
+                    </p>
+
+                    <button onClick={setCopied} className=" bg-blue-500 hover:bg-blue-700  flex items-center text-white  rounded">
                         <AiOutlineCopy /> {isCopied ? "Yes! 👍" : "Nope! 👎"}
                     </button>
                     <FaPlus />
-                    <MdOutlineMoreHoriz />
+                    <MdOutlineMoreHoriz onClick={() => onClick(card)}
+                        style={{
+                            cursor: 'pointer'
+                        }}
+                    />
 
                 </div>
 
-
-
             </div>
-
         </div>
     );
 };

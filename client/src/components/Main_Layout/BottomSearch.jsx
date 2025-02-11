@@ -136,19 +136,22 @@ const BottomSearch = () => {
     return (
         <>
             <TranscriptsPopup transcripts={transcript} onClose={() => setTranscript('')} />
-                
-            <div className="bg-gray-100 p-4 rounded-3xl shadow-md w-full">
 
-                {audioUrl && (
-                    <div className="mt-2">
-                        <h3 className="text-lg font-bold">Playback:</h3>
-                        <audio controls src={audioUrl} className="w-full" />
-                    </div>
-                )}
-                <div className="h-[20px] overflow-x-auto text-black">
+            <div className="bg-gray-100 p-4 rounded-3xl shadow-md w-full flex items-center justify-between">
+
+
+                {/* <div className="h-[20px] overflow-x-auto text-black">
                     <strong>Transcript:</strong> {transcript}
+                </div> */}
+                <div className="w-[70%]">
+                    {audioUrl && (
+                        <div className="mt-2">
+                            <audio controls src={audioUrl} className="w-full rounded-full" />
+                        </div>
+                    )}
                 </div>
                 <div className="flex justify-end items-center mx-4">
+
                     <div className='flex items-center cursor-pointer' onClick={() => document.getElementById('imageInput').click()}>
                         <input type="file" id='imageInput' onChange={(e) => setImage(e.target.files[0])} className='hidden' />
                         <FaRegFileImage className='cursor-pointer w-8 h-8 mx-2' />

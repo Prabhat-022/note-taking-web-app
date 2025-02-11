@@ -60,7 +60,7 @@ const Home = () => {
                     <div className="">
                         <h1 className="p-4 m-2 text-2xl font-bold mt-4">Card List</h1>
                     </div>
-                    <div className="overflow-y-auto flex m-2  ">
+                    <div className=" w-full h-[80vh] overflow-y-auto flex flex-wrap gap-2  items-center justify-center">
                         {note.map((card) => (
                             card.map((card, index) => (
                                 <Card key={card.id} card={card} onClick={handleCardClick} />
