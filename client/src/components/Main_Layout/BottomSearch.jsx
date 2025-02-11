@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
+import { FaRegFileImage } from "react-icons/fa6";
+import TranscriptsPopup from '../TranscriptsPopup';
 
 const BottomSearch = () => {
     const [recording, setRecording] = useState(false);
@@ -102,14 +104,14 @@ const BottomSearch = () => {
 
             const formData = new FormData();
             formData.append('audio', audioBlob, 'recording.wav');
-            formData.append('text', transcript || 'Transcript is not working' );
+            formData.append('text', transcript || 'Transcript is not working');
             formData.append('image', image);
             formData.append('user', loginuser?._id || user?._id);
 
             for (const pair of formData.entries()) {
                 console.log(`${pair[0]}: ${pair[1]}`);
             }
-            
+
             try {
 
                 const response = await axios.post('http://localhost:3000/api/v1/note/create', formData, {
@@ -131,30 +133,45 @@ const BottomSearch = () => {
         };
     };
 
-
     return (
-        <div className="bg-gray-100 p-4 rounded-md shadow-md">
-            <h2 className="text-lg font-bold mb-4">Record Audio</h2>
+        <>
+            <TranscriptsPopup transcripts={transcript} onClose={() => setTranscript('')} />
+                
+            <div className="bg-gray-100 p-4 rounded-3xl shadow-md w-full">
 
-            {audioUrl && (
-                <div className="mt-4">
-                    <h3 className="text-lg font-bold">Playback:</h3>
-                    <audio controls src={audioUrl} className="w-full" />
+                {audioUrl && (
+                    <div className="mt-2">
+                        <h3 className="text-lg font-bold">Playback:</h3>
+                        <audio controls src={audioUrl} className="w-full" />
+                    </div>
+                )}
+                <div className="h-[20px] overflow-x-auto text-black">
+                    <strong>Transcript:</strong> {transcript}
                 </div>
-            )}
-            <div className="h-[200px] overflow-y-auto text-black">
-                <strong>Transcript:</strong> {transcript }
+                <div className="flex justify-end items-center mx-4">
+                    <div className='flex items-center cursor-pointer' onClick={() => document.getElementById('imageInput').click()}>
+                        <input type="file" id='imageInput' onChange={(e) => setImage(e.target.files[0])} className='hidden' />
+                        <FaRegFileImage className='cursor-pointer w-8 h-8 mx-2' />
+                    </div>
+
+
+
+                    <button type='submit'
+                        onClick={recording ? stopRecording : startRecording}
+                        className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md flex items-center justify-center ${recording ? 'bg-red-500' : ''}`}
+                    >
+                        {
+                            recording ? <div className='bg-red-600 rounded-full w-3 h-3'></div> : ""
+                        }
+                        {recording ? 'Stop Recording' : 'Start Recording'}
+
+                    </button>
+                </div>
+
+
             </div>
-            <input type="file" onChange={(e)=>setImage(e.target.files[0])} />
+        </>
 
-            <button  type='submit'
-                onClick={recording ? stopRecording : startRecording}
-                className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md ${recording ? 'bg-red-500' : ''}`}
-            >
-                {recording ? 'Stop Recording' : 'Start Recording'}
-            </button>
-
-        </div>
     );
 };
 
